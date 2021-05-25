@@ -1,37 +1,54 @@
-const { v4: uuid } = require("uuid");
-const db = require("../db");
+const Contact = require('../schemas/contacts-schemas');
 
 class ContactsRepository {
-  getAll() {
-    return db.get("contacts").value();
+  constructor() {
+    this.model = Contact;
   }
 
-  getById(contactId) {
-    const idS = String(contactId);
-    return db.get("contacts").find({ id: idS }).value();
+  async getAll() {
+    const result = await this.model.find({});
+    console.log('this.model', this.model);
+    console.log('results', result);
+    return result;
   }
 
-  create(body) {
-    const id = uuid();
-    const record = {
+  async getById(id) {
+    const result = await this.model.findById(id);
+    return result;
+  }
+  
+  async create(body) {
+    const result = await this.model.create(body);
+    return result;
+  }
+
+  async update(id, body) {
+    const result = await this.model.findByIdAndUpdate(
       id,
-      ...body,
-    };
-    db.get("contacts").push(record).write();
-    return record;
+      { ...body },
+      {
+        new: true,
+      },
+    );
+    console.log('results', result);
+    return result;
   }
 
-  update(contactId, body) {
-    const idS = String(contactId);
-    const record = db.get("contacts").find({ id: idS }).assign(body).value();
-    db.write();
-    return record;
+  async remove(id) {
+    const result = await this.model.findByIdAndRemove(id);
+    return result;
   }
 
-  remove(contactId) {
-    const idS = String(contactId);
-    const [record] = db.get("contacts").remove({ id: idS }).write();
-    return record;
+  async updateStatus(id, body) {
+    const result = await this.model.findByIdAndUpdate(
+      id,
+      { ...body },
+      {
+        new: true,
+      },
+    );
+    console.log('results', result);
+    return result;
   }
 }
 module.exports = ContactsRepository;
