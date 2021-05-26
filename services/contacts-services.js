@@ -31,5 +31,10 @@ class ContactsServices {
     const data = this.repositories.contacts.remove(id);
     return data;
   }
+  
+  async updateStatus({ id }, body) {
+    const data = this.repositories.contacts.updateStatus(id, body);
+    return data;
+  }
 }
 module.exports = ContactsServices;
