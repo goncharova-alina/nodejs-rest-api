@@ -5,49 +5,61 @@ class ContactsRepository {
     this.model = Contact;
   }
 
-  async getAll() {
-    const result = await this.model.find({});
-    console.log('this.model', this.model);
-    console.log('results', result);
+  async getAll(userId, { page = 1, limit = 20, favorite }) {
+    const result = await this.model.paginate(
+      { owner: userId, favorite: favorite },
+      {
+        limit,
+        page,
+        populate: {
+          path: 'owner',
+          select: ' name email subscription  -_id',
+        },
+      },
+    );
+
     return result;
   }
 
-  async getById(id) {
-    const result = await this.model.findById(id);
-    return result;
-  }
-  
-  async create(body) {
-    const result = await this.model.create(body);
+  async getById(userId, id) {
+    const result = await this.model.findById(id, { owner: userId }).populate({
+      path: 'owner',
+      select: ' name email subscription',
+    });
     return result;
   }
 
-  async update(id, body) {
+  async create(userId, body) {
+    const result = await this.model.create({ ...body, owner: userId });
+    return result;
+  }
+
+  async update(userId, id, body) {
     const result = await this.model.findByIdAndUpdate(
       id,
+      { owner: userId },
       { ...body },
       {
         new: true,
       },
     );
-    console.log('results', result);
     return result;
   }
 
-  async remove(id) {
-    const result = await this.model.findByIdAndRemove(id);
+  async remove(userId, id) {
+    const result = await this.model.findByIdAndRemove(id, { owner: userId });
     return result;
   }
 
-  async updateStatus(id, body) {
+  async updateStatus(userId, id, body) {
     const result = await this.model.findByIdAndUpdate(
       id,
+      { owner: userId },
       { ...body },
       {
         new: true,
       },
     );
-    console.log('results', result);
     return result;
   }
 }
