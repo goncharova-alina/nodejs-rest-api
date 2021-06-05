@@ -1,4 +1,4 @@
-const { ContactsRepository } = require("../repository");
+const { ContactsRepository } = require('../repository');
 
 class ContactsServices {
   constructor() {
@@ -7,33 +7,33 @@ class ContactsServices {
     };
   }
 
-  getAll() {
-    const data = this.repositories.contacts.getAll();
+  async getAll(userId, query) {
+    const data = await this.repositories.contacts.getAll(userId, query);
     return data;
   }
 
-  getById({ id }) {
-    const data = this.repositories.contacts.getById(id);
+  async getById(userId, { id }) {
+    const data = await this.repositories.contacts.getById(userId, id);
     return data;
   }
 
-  create(body) {
-    const data = this.repositories.contacts.create(body);
+  async create(userId, body) {
+    const data = await this.repositories.contacts.create(userId, body);
     return data;
   }
 
-  update({ id }, body) {
-    const data = this.repositories.contacts.update(id, body);
+  async update(userId, { id }, body) {
+    const data = await this.repositories.contacts.update(userId, id, body);
     return data;
   }
 
-  remove({ id }) {
-    const data = this.repositories.contacts.remove(id);
+  async remove(userId, { id }) {
+    const data = await this.repositories.contacts.remove(userId, id);
     return data;
   }
-  
-  async updateStatus({ id }, body) {
-    const data = this.repositories.contacts.updateStatus(id, body);
+
+  async updateStatus(userId, { id }, body) {
+    const data = this.repositories.contacts.updateStatus(userId, id, body);
     return data;
   }
 }
