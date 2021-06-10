@@ -8,6 +8,7 @@ const {
   validateLogin,
   validateSubscriptionUpdate,
 } = require('../../validation/users-validation');
+const upload = require('../../helpers/multer');
 
 router.patch(
   '/sub',
@@ -27,5 +28,12 @@ router.post('/login', validateLogin, controllerUsers.login);
 router.post('/logout', guard, controllerUsers.logout);
 
 router.get('/current', guard, controllerUsers.current);
+
+router.patch(
+  '/avatars',
+  guard,
+  upload.single('avatar'),
+  controllerUsers.uploadAvatar,
+);
 
 module.exports = router;

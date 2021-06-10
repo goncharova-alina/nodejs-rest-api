@@ -27,6 +27,7 @@ const signup = async (req, res, next) => {
         id: newUser.id,
         email: newUser.email,
         subscription: newUser.subscription,
+        avatarURL: user.avatarURL,
       },
     });
   } catch (e) {
@@ -96,10 +97,35 @@ const updateSubscription = async (req, res, next) => {
   }
 };
 
+const uploadAvatar = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    if (req.file) {
+      const url = await usersServices.uploadAvatar(userId, req.file);
+
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: {
+          avatarURL: url,
+        },
+      });
+    } else {
+      return next({
+        status: HttpCode.UNAUTHORIZED,
+        message: 'Not authorized',
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   signup,
   login,
   logout,
   current,
   updateSubscription,
+  uploadAvatar,
 };

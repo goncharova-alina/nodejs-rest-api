@@ -3,6 +3,7 @@ const logger = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const contactsRouter = require('./routes/api/contacts');
 const usersRouter = require('./routes/api/users');
@@ -13,6 +14,7 @@ const { apliLimit, jsonLimit } = require('./config/rate-limit.json');
 
 const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(
   '/api/',
   rateLimit({
@@ -34,15 +36,6 @@ app.use(express.json({ limit: jsonLimit }));
 
 app.use('/api/users', usersRouter);
 app.use('/api/contacts', contactsRouter);
-
-// app.use((req, res, _next) => {
-//   res.status(HttpCode.NOT_FOUND).json({
-//     status: 'error',
-//     code: HttpCode.NOT_FOUND,
-//     message: `Use api on routes ${req.baseUrl}/api/contacts`,
-//     data: 'Not Found',
-//   });
-// });
 
 app.use((err, _req, res, _next) => {
   err.status = err.status ? err.status : HttpCode.INTERNAL_SERVER_ERROR;
