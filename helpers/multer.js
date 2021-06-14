@@ -1,6 +1,7 @@
 const path = require('path');
 require('dotenv').config();
 const multer = require('multer');
+const { imageSizeLimit } = require('../config/rate-limit.json');
 
 const UPLOAD_DIR = path.join(process.cwd(), 'tmp');
 
@@ -9,13 +10,13 @@ const storage = multer.diskStorage({
     cb(null, UPLOAD_DIR);
   },
   filename: function (req, file, cb) {
-    cb(null, `${Date.now().toString()}-${file.originalname}`);
+    cb(null, file.originalname);
   },
 });
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 2000000 },
+  limits: { fileSize: imageSizeLimit },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.includes('image')) {
       cb(null, true);

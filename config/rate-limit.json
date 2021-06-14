@@ -3,5 +3,10 @@
         "windowMs": 900000,
         "max": 100
     },
-    "jsonLimit": 10000
+    "createAccountLimit": {
+        "windowMs": 3600000,
+        "max": 30
+    },
+    "jsonLimit": 10000,
+    "imageSizeLimit": 2000000
 }

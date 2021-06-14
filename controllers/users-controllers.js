@@ -5,7 +5,7 @@ const usersServices = new UsersServices();
 const authServices = new AuthServices();
 
 const signup = async (req, res, next) => {
-  const { email, password, subscription } = req.body;
+  const { email } = req.body;
   const user = await usersServices.findByEmail(email);
   if (user) {
     return next({
@@ -15,11 +15,7 @@ const signup = async (req, res, next) => {
     });
   }
   try {
-    const newUser = await usersServices.create({
-      email,
-      password,
-      subscription,
-    });
+    const newUser = await usersServices.create(req.body);
     return res.status(HttpCode.CREATED).json({
       status: 'success',
       code: HttpCode.CREATED,
@@ -27,7 +23,7 @@ const signup = async (req, res, next) => {
         id: newUser.id,
         email: newUser.email,
         subscription: newUser.subscription,
-        avatarURL: user.avatarURL,
+        avatarURL: newUser.avatarURL,
       },
     });
   } catch (e) {
@@ -120,6 +116,57 @@ const uploadAvatar = async (req, res, next) => {
     next(error);
   }
 };
+const verify = async (req, res, next) => {
+  try {
+    const result = await usersServices.verify(req.params);
+    if (result) {
+      return res.status(HttpCode.OK).json({
+        status: 'success',
+        code: HttpCode.OK,
+        data: {
+          message: 'Verification successful',
+        },
+      });
+    } else {
+      return next({
+        status: HttpCode.NOT_FOUND,
+        message: 'User not found. Contact with administration',
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+const reVerification = async (req, res, next) => {
+  try {
+    const user = await usersServices.findByEmail(req.body.email);
+    if (user.verify) {
+      next({
+        status: HttpCode.BAD_REQUEST,
+        data: {
+          message: 'Verification has already been passed',
+        },
+      });
+    }
+
+    const { name, email, verifyToken } = user;
+    await usersServices.repeatSendMail({
+      name,
+      email,
+      verifyToken,
+    });
+
+    return res.status(HttpCode.OK).json({
+      status: 'success',
+      code: HttpCode.OK,
+      data: {
+        message: 'Verification email sent',
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   signup,
@@ -128,4 +175,6 @@ module.exports = {
   current,
   updateSubscription,
   uploadAvatar,
+  verify,
+  reVerification,
 };

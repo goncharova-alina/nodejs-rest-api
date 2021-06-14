@@ -7,6 +7,7 @@ const {
   validateSingup,
   validateLogin,
   validateSubscriptionUpdate,
+  validateVerifyUser,
 } = require('../../validation/users-validation');
 const upload = require('../../helpers/multer');
 
@@ -28,7 +29,8 @@ router.post('/login', validateLogin, controllerUsers.login);
 router.post('/logout', guard, controllerUsers.logout);
 
 router.get('/current', guard, controllerUsers.current);
-
+router.get('/verify/:verificationToken', controllerUsers.verify);
+router.post('/verify', validateVerifyUser, controllerUsers.reVerification);
 router.patch(
   '/avatars',
   guard,

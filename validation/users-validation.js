@@ -25,6 +25,15 @@ const subscriptionUpdateSchema = Joi.object({
   subscription: Joi.any().valid('starter', 'pro', 'business').required(),
 });
 
+const verifyUserSchema = Joi.object({
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net', 'ru', 'ua'] },
+    })
+    .required(),
+});
+
 const validate = (schema, body, next) => {
   const { error } = schema.validate(body);
   if (error) {
@@ -37,6 +46,7 @@ const validate = (schema, body, next) => {
   }
   next();
 };
+
 module.exports.validateSingup = (req, res, next) => {
   return validate(schemaSingup, req.body, next);
 };
@@ -45,4 +55,8 @@ module.exports.validateLogin = (req, res, next) => {
 };
 module.exports.validateSubscriptionUpdate = (req, res, next) => {
   return validate(subscriptionUpdateSchema, req.body, next);
+};
+
+module.exports.validateVerifyUser = (req, res, next) => {
+  return validate(verifyUserSchema, req.body, next);
 };

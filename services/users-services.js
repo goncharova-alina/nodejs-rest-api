@@ -1,17 +1,27 @@
 const { UsersRepository } = require('../repository');
+const EmailService = require('./email-services');
 const jimp = require('jimp');
 const path = require('path');
 const fs = require('fs/promises');
+const { nanoid } = require('nanoid');
 
 class UsersServices {
   constructor() {
     this.repositories = {
       users: new UsersRepository(),
     };
+    this.emailService = new EmailService();
   }
 
   async create(body) {
-    const data = await this.repositories.users.create(body);
+    const verifyToken = nanoid();
+    const { email, name } = body;
+    try {
+      await this.emailService.sendEmail(verifyToken, email, name);
+    } catch (error) {
+      throw new Error('Servise Unavailable');
+    }
+    const data = await this.repositories.users.create({ ...body, verifyToken });
     return data;
   }
 
@@ -23,6 +33,25 @@ class UsersServices {
   async findById(id) {
     const data = await this.repositories.users.findById(id);
     return data;
+  }
+
+  async verify({ token }) {
+    const user = await this.repositories.users.findByField({
+      verifyToken: token,
+    });
+    if (user) {
+      await user.updateOne({ verify: true, verifyToken: null });
+      return true;
+    }
+    return false;
+  }
+
+  async repeatSendMail({ name, email, verifyToken }) {
+    try {
+      await this.emailService.sendEmail(verifyToken, name, email);
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   async updateSubscriptionById(userId, body) {

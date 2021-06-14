@@ -13,7 +13,7 @@ class AuthServices {
   async login({ email, password }) {
     const user = await this.repositories.users.findByEmail(email);
     const valid = await user.validPassword(password);
-    if (!user || !valid) {
+    if (!user || !valid || !user.verify) {
       return null;
     }
     const id = user.id;
@@ -22,7 +22,12 @@ class AuthServices {
     await this.repositories.users.updateToken(id, token);
     return {
       token,
-      user: { email: user.email, subscription: user.subscription, id: user.id },
+      user: {
+        email: user.email,
+        subscription: user.subscription,
+        id: user.id,
+        avatarURL: user.avatarURL,
+      },
     };
   }
 
@@ -34,7 +39,12 @@ class AuthServices {
   async current(email) {
     const user = await this.repositories.users.findByEmail(email);
 
-    return { email: user.email, subscription: user.subscription };
+    return {
+      email: user.email,
+      subscription: user.subscription,
+      id: user.id,
+      avatarURL: user.avatarURL,
+    };
   }
 }
 module.exports = AuthServices;
